@@ -66,11 +66,14 @@ impl DockerClient {
     fn set_workdir(command: &mut Command) {
         let binding = std::env::current_dir().unwrap();
         let current_dir = binding.to_str().unwrap();
-
+        // On Windows platform, make path like "C:\foo\bar" to "/C/foo/bar"
+        let current_dir_windows = current_dir.replace(":", "").replace("\\", "/");
+        let current_dir_windows = format!("/{}", current_dir_windows);
         command
             .arg("-v")
-            .arg(format!("{}:{}", current_dir, current_dir))
-            .args(["-w", current_dir]);
+            .arg(format!("{}:{}", current_dir_windows, current_dir_windows))
+            .arg("-w")
+            .arg(format!("{}", current_dir_windows));
     }
 
     fn set_image_name(command: &mut Command, ruby_version: &str, rails_version: &str) {
